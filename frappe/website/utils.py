@@ -121,7 +121,17 @@ def get_home_page():
 			home_page = frappe.db.get_single_value("Website Settings", "home_page")
 
 		if not home_page:
-			home_page = "login" if frappe.session.user == "Guest" else "me"
+			home_page = "login"
+			if frappe.session.user == "Guest":
+				# If session user is "Guest"
+				# Do something
+				pass
+			elif frappe.session.data.user_type == "Website User":
+				# If user type is "Website User"
+				return "home"
+			else:
+				# If none of the above conditions are met
+				return "me"
 
 		home_page = home_page.strip("/")
 

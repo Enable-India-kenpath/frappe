@@ -1,0 +1,86 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<html>
+
+<head>
+    <title>
+        View Registry
+    </title>
+    <style>
+        .list-row-head {
+            cursor: default;
+            background-color: var(--subtle-fg);
+            height: 30px;
+            padding: 8px, 10px, 8px, 0px;
+            margin: 8px 5px 0px 5px;
+            border-radius: var(--border-radius-md);
+        }
+        .table{
+            border: 1px solid;
+        }
+        .doclist{
+            cursor: pointer;
+        }
+        .doclist:hover{
+            background-color: #e2e2e2;
+        }
+    </style>
+    <script>
+        document.getElementById('openErrorMessage').click
+        function openCustomPopup() {
+            var htmlContent = `
+                <div>
+                    <span>You don't have acces to this page</h2>
+                    <button><a href="/login">Login</a></button>
+                </div>
+            `;
+            frappe.msgprint(htmlContent);
+        }
+    
+        function closePopup() {
+            frappe.close_msgprint();
+        }
+
+        function navigateToModuleList(obj){
+            
+        }
+    </script>
+</head>
+
+<body>
+    <div class="frappe-list">
+        <div class="result">
+            {% if doc_type_list %}
+                <table class="table">
+                    <tr class="list-row-head">
+                        {% for key in doc_type_list[0][0].keys() %}
+                        <th>{{ key }}</th>
+                        {% endfor %}
+                    </tr>
+                    {% for doc_type in doc_type_list %}
+                        {% if doc_type %}
+                            {% for obj in doc_type %}
+                                <tr class="doclist" onclick="navigateToModuleList('{{ obj | json }}')">
+                                    {% for key, value in obj.items() %}
+                                        <td>{{ value }}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                </table>
+            {% else %}
+                <div>
+                    <span>You don't have acces to this page</h2>
+                    <button class="btn btn-primary"><a href="/login" style="color: white;">Login</a></button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</body>
+
+</html>
+
+{% endblock %}
