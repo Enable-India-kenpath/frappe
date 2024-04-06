@@ -1,0 +1,200 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<html>
+<script>
+    var isUserLoggedin = false;
+    var userRole = "Website User";
+    console.log('userRole')
+    frappe.ready(function () {
+        //Get User Details
+        var userId = frappe.session.user;
+        if (userId !== "Guest") {
+            frappe.call({
+                method: "frappe.client.get",
+                args: {
+                    doctype: "User",
+                    name: userId
+                },
+                callback: function (response) {
+                    if (response.message) {
+                        isUserLoggedin = true;
+                        // Logged-in user details retrieved successfully
+                        var userDetails = response.message;
+                        if (userDetails.user_type == "System User") {
+                            userRole = userDetails.user_type;
+                        }
+                    } else {
+                        console.error("Failed to retrieve user details");
+                    }
+                }
+            });
+        }
+    });            // C
+    function navigate() {
+        if (isUserLoggedin) {
+            if (userRole == "System User") {
+                window.location.href = "/app/home"
+            } else {
+                window.location.href = "/dashboard";
+            }
+        } else {
+            window.location.href = "/login";
+        }
+    }
+</script>
+<style>
+    .section {
+        display: flex;
+        justify-content: space-evenly;
+    }
+
+    .content-wrapper {
+        width: 50%;
+        display: flex;
+        align-items: center;
+    }
+
+    .content-style {
+        background-image: linear-gradient(to left bottom, #93278f, #9b3ea8, #a053c1, #a467da, #a67bf3);
+        color: #fff;
+        border-radius: 25px;
+        display: flex;
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 35px 50px;
+    }
+
+    .home-image {
+        height: 400px;
+    }
+
+    .btn.get-started {
+        background-color: #171717;
+        color: #fff;
+    }
+
+    .btn.get-started:hover {
+        background-image: linear-gradient(to left bottom, #93278f, #9b3ea8, #a053c1, #a467da, #a67bf3);
+        color: #fff;
+    }
+
+    .home-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-end;
+        text-align: end;
+    }
+
+    @media only screen and (min-width: 769px) and (max-width: 1023px) {
+        .home-image {
+            width: -webkit-fill-available;
+            height: auto;
+            max-height: 350px;
+        }
+
+        .content-wrapper {
+            width: 100%;
+            padding: 0;
+        }
+    }
+
+    @media only screen and (max-width: 768px) {
+        .home-image {
+            width: -webkit-fill-available;
+            height: auto;
+        }
+
+        .section {
+            flex-direction: column;
+        }
+
+        .content-wrapper {
+            width: 100%;
+            padding: 0;
+        }
+
+        .content-right-wrapper {
+            flex-direction: column-reverse;
+        }
+
+        .image-wrapper {
+            margin-top: 30px;
+        }
+    }
+</style>
+
+<body>
+    <div class="container mt-3 mb-3">
+        <div class="section content-left-wrapper">
+            <div class="content-wrapper home-content">
+                <h3>What is Purple Registry platform?</h3>
+                <p class="description">
+                    Disability Innovative Solutions Hub is a unifying platform where people with disabilities and
+                    stakeholders can search for assistive solutions. An assistive solution can either be a product,
+                    process or program that helps a person with disabilities to overcome their barrier.
+                </p>
+                <button class="btn get-started" onclick="navigate()">Get Started</button>
+            </div>
+            <div class="image-wrapper">
+                <img class="home-image" src="https://enablesolutions.org/assets/img/home/home_cover.png">
+            </div>
+        </div>
+    </div>
+    <div class="container mb-3" style="padding-top:50px">
+        <div class="section content-right-wrapper">
+            <div class="image-wrapper">
+                <img class="home-image" src="https://enablesolutions.org/assets/img/home/dish_image1_R.png">
+            </div>
+            <div class="content-wrapper text-start">
+                <div class="content-style">
+                    <h3>Why Purple Registry</h3>
+                    <p class="description">
+                        The disability sector works in silos. The main drawback is that the inventor's time and effort
+                        is not being adequately utilized to address needs of persons with disabilities. With Purple
+                        Registry, people are able to search, develop, replicate and fund emerging solutions based on the
+                        needs of the community.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container mb-3" style="padding-top:50px">
+        <div class="section content-left-wrapper">
+            <div class="content-wrapper text-start">
+                <div class="content-style">
+                    <h3>How does Purple Registry work?</h3>
+                    <p class="description">
+                        Purple Registry is an AI based search engine for people with disabilities and stakeholders to
+                        identify solutions for creation, replication, scaling and marketing. The user on entering a
+                        problem statement will get multiple options on how to solve the problem. The solutions could be
+                        high, medium or low tech in nature.
+                    </p>
+                </div>
+            </div>
+            <div class="image-wrapper">
+                <img class="home-image" src="https://enablesolutions.org/assets/img/home/dish_image2_R.png">
+            </div>
+        </div>
+    </div>
+    <div class="container mb-3" style="padding-top:50px">
+        <div class="section content-right-wrapper">
+            <div class="image-wrapper">
+                <img class="home-image" src="https://enablesolutions.org/assets/img/home/dish_image3_R.png">
+            </div>
+            <div class="content-wrapper text-start">
+                <div class="content-style">
+                    <h3>Who does Purple Registry help?</h3>
+                    <p class="description">
+                        Purple Registry is helpful for all the stakeholders associated with the disability sector like
+                        people with disabilities, parents, families, caregivers, accelerators, start ups and investors.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+{%endblock%}
