@@ -114,12 +114,10 @@
 				{%- endif -%}
 			</form>
 		</div>
-		{%- if not disable_signup and not disable_user_pass_login -%}
 		<div class="text-center sign-up-message">
 			{{ _("Don't have an account?") }}
-			<a href="#signup">{{ _("Sign up") }}</a>
+			<a href="/registration-forms/new">{{ _("Sign up") }}</a>
 		</div>
-		{%- endif -%}
 	</section>
 
 	{%- if social_login -%}

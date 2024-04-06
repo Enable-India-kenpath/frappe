@@ -1,0 +1,303 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+        .nav {
+            display: flex;
+            flex-wrap: wrap;
+            padding-left: 0;
+            margin-bottom: 0;
+            list-style: none;
+        }
+
+        .user-details {
+            margin-top: 10px;
+        }
+
+        .dashboard-section {
+            display: flex;
+        }
+
+        .profile-username {
+            text-align: center;
+        }
+
+        .profile-username img {
+            border-radius: 50%;
+            height: 100px;
+            width: 100px;
+        }
+
+        .left-container {
+            width: 25%;
+            border: 2px solid #efefef;
+            padding: 20px;
+        }
+
+        .left-container ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .user-details div {
+            margin-bottom: 10px;
+        }
+
+        .user-details div label {
+            margin-bottom: 0;
+        }
+
+        .right-container {
+            width: 80%;
+            border: 2px solid #efefef;
+            padding: 10px;
+        }
+
+        .nav-pills .nav-link.active {
+            background-color: #171717 !important;
+            color: #fff !important;
+        }
+
+        .right-container .nav-link {
+            background-color: #efefef !important;
+            color: #b7b7b7 !important;
+        }
+
+        .user-section li {
+            cursor: pointer;
+        }
+
+        .user-section li:not(.active):hover {
+            background-color: #b7b7b7;
+        }
+
+        .right-container .nav li {
+            padding-left: 10px;
+        }
+
+        @property --p {
+            syntax: '<number>';
+            inherits: true;
+            initial-value: 0;
+        }
+
+        .pie {
+            --p: 20;
+            --b: 22px;
+            --c: darkred;
+            --w: 150px;
+
+            width: var(--w);
+            aspect-ratio: 1;
+            position: relative;
+            display: inline-grid;
+            margin: 5px;
+            place-content: center;
+            font-size: 25px;
+            font-weight: bold;
+            font-family: sans-serif;
+        }
+
+        .pie:before,
+        .pie:after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+        }
+
+        .pie:before {
+            inset: 0;
+            background: radial-gradient(farthest-side, #1f1f1f 98%, #0000) top/var(--b) var(--b) no-repeat,
+                conic-gradient(#1f1f1f calc(var(--p)*1%), #0000 0);
+            -webkit-mask: radial-gradient(farthest-side, #0000 calc(99% - var(--b)), #000 calc(100% - var(--b)));
+            mask: radial-gradient(farthest-side, #0000 calc(99% - var(--b)), #000 calc(100% - var(--b)));
+        }
+
+        .pie:after {
+            inset: calc(50% - var(--b)/2);
+            background: var(--c);
+            transform: rotate(calc(var(--p)*3.6deg)) translateY(calc(50% - var(--w)/2));
+        }
+
+        .animate {
+            animation: p 1s .5s both;
+        }
+
+        .no-round:before {
+            background-size: 0 0, auto;
+        }
+
+        .no-round:after {
+            content: none;
+        }
+
+        @keyframes p {
+            from {
+                --p: 0
+            }
+        }
+
+        .accessibility-solution {
+            display: flex;
+            align-items: center;
+        }
+
+        .accessiible {
+            width: 80%;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .user-section-item.active {
+            font-weight: 700;
+        }
+
+        .user-section-item {
+            cursor: pointer;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            padding:10px
+        }
+
+        .user-section-item:hover {
+            border-radius: 25px;
+            background-color: #efefef;
+            transition-duration: 0.2s;
+        }
+
+        .user-section-item a:hover {
+            text-decoration: none;
+            text-decoration-line: none;
+        }
+        .user-section-item .icons {
+            height: 25px;
+            width: 25px;
+        }
+
+        .user-section-item span{
+            width: 100%;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-section">
+        <div class="left-container">
+            <div class=user-details>
+                <div class="profile-username">
+                    <div class="profile-picture">
+                        <img src="https://cdn6.f-cdn.com/files/download/38546484/28140e.jpg" alt="profile photo" />
+                    </div>
+                    <div class="username">
+                        {{userDetails.name}}
+                    </div>
+                </div>
+                <div class="user-section-item active" aria-current="true">
+                    <img src="/assets/frappe/images/home-icon-silhouette.png" style="height: 25px; width: 25px;" />
+                    <span>My Dashboard</span>
+                </div>
+                <div class="user-section-item">
+                    <img src="/assets/frappe/images/user.png" style="height: 25px; width: 25px;" />
+                    <span><a href="http://18.216.214.84:8080/update-user-profile">Profile Update</a></span>
+                </div>
+                <div class="user-section-item">
+                    <img src="/assets/frappe/images/contact.png" style="height: 25px; width: 25px;" />
+                    <span>Profile Share</span>
+                </div>
+                <div class="user-section-item">
+                    <img src="/assets/frappe/images/help-web-button.png" style="height: 25px; width: 25px;" />
+                    <span>Need Help</span>
+                </div>
+                <div class="user-section-item">
+                    <img src="/assets/frappe/images/digital.png" style="height: 25px; width: 25px;" />
+                    <a href="https://myaadhaar.uidai.gov.in/verifyAadhaar">
+                        <span>Validate Aadhar Number</span>
+                    </a>
+                </div>
+                <div class="user-section-item">
+                    <img src="/assets/frappe/images/udid.png" style="height: 25px; width: 25px;" />
+                    <a href = "https://www.swavlambancard.gov.in/pwd/pwdtrack" >
+                        <span>Validate UDID Number</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="right-container">
+            <ul class="nav nav-pills" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="dashboard nav-link active" id="pills-home-tab" data-bs-toggle="pill"
+                        data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home"
+                        aria-selected="true">Blimey</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="dashboard nav-link" id="pills-profile-tab" data-bs-toggle="pill"
+                        data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile"
+                        aria-selected="false" disabled>Vaani</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="dashboard nav-link" id="pills-contact-tab" data-bs-toggle="pill"
+                        data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact"
+                        aria-selected="false" disabled>Dish</button>
+                </li>
+            </ul>
+            <div class="tab-content" id="pills-tabContent">
+                <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                    <div class="accessibility-solution">
+                        <div class="accessiible">
+                            <span>accessibility Solutions</span>
+                            <span>Service stations</span>
+                        </div>
+                        <div class="profiele-status">
+                            <div class="pie animate no-round" style="--p:80;--c:orange;"> 80%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+                    ...</div>
+                <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+                    ...</div>
+            </div>
+            <div class="Click-buttons">
+                <span>Last updated on:</span>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Get all tabs
+        var tabs = document.querySelectorAll('.dashboard');
+        // Add click event listener to each tab
+        console.log(tabs)
+        tabs.forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                console.log('clecked')
+                tabs.forEach(function (t) {
+                    t.classList.remove('active');
+                });
+
+                this.classList.add('active');
+
+                var tabPanes = document.querySelectorAll('.tab-pane');
+                tabPanes.forEach(function (pane) {
+                    pane.classList.remove('show', 'active');
+                });
+
+                var targetPaneId = this.getAttribute('data-bs-target').substring(1); // remove #
+                var targetPane = document.getElementById(targetPaneId);
+                targetPane.classList.add('show', 'active');
+            });
+        });
+    </script>
+</body>
+
+</html>
+
+{% endblock %}

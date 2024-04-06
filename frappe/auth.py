@@ -189,7 +189,7 @@ class LoginManager:
 		# redirect information
 		redirect_to = frappe.cache.hget("redirect_after_login", self.user)
 		if self.user_type == 'Website User':
-			redirect_to = '\home'
+			redirect_to = '\dashboard'
 		if redirect_to:
 			frappe.local.response["redirect_to"] = redirect_to
 			frappe.cache.hdel("redirect_after_login", self.user)

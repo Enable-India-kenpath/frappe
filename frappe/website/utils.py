@@ -128,7 +128,7 @@ def get_home_page():
 				pass
 			elif frappe.session.data.user_type == "Website User":
 				# If user type is "Website User"
-				return "home"
+				return "dashboard"
 			else:
 				# If none of the above conditions are met
 				return "me"
