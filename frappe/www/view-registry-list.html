@@ -16,9 +16,6 @@
             margin: 8px 5px 0px 5px;
             border-radius: var(--border-radius-md);
         }
-        .table{
-            border: 1px solid;
-        }
         .doclist{
             cursor: pointer;
         }
@@ -27,7 +24,16 @@
         }
     </style>
     <script>
-        document.getElementById('openErrorMessage').click
+
+        // Wait for the document to fully load
+        document.addEventListener("DOMContentLoaded", function() {
+            // Get the element by its ID
+            var element = document.getElementById("docData");
+            console.log('element', element)
+            // Add the click event listener to the element
+            element.addEventListener("click", navigateToModuleList);
+        });
+        // document.getElementById('openErrorMessage').click
         function openCustomPopup() {
             var htmlContent = `
                 <div>
@@ -42,8 +48,10 @@
             frappe.close_msgprint();
         }
 
-        function navigateToModuleList(obj){
-            
+        function navigateToModuleList(){
+            if("{{doc_type_list[0][0].name}}" == "PWD_registry"){
+                window.location.href = "app/pwd_registry"
+            }
         }
     </script>
 </head>
@@ -53,15 +61,15 @@
         <div class="result">
             {% if doc_type_list %}
                 <table class="table">
-                    <tr class="list-row-head">
+                    <thead class="thead-dark">
                         {% for key in doc_type_list[0][0].keys() %}
                         <th>{{ key }}</th>
                         {% endfor %}
-                    </tr>
+                    </thead>
                     {% for doc_type in doc_type_list %}
                         {% if doc_type %}
                             {% for obj in doc_type %}
-                                <tr class="doclist" onclick="navigateToModuleList('{{ obj | json }}')">
+                                <tr scope="row" class="doclist" id = "docData">
                                     {% for key, value in obj.items() %}
                                         <td>{{ value }}</td>
                                     {% endfor %}
