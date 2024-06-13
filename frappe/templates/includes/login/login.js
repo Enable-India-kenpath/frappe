@@ -7,6 +7,9 @@ window.show_footer_on_login = {{ show_footer_on_login and "true" or "false" }};
 window.login = {};
 
 window.verify = {};
+let isOtpValid = false
+let phoneNumber
+let requestOptions
 
 login.bind_events = function () {
 	$(window).on("hashchange", function () {
@@ -20,7 +23,13 @@ login.bind_events = function () {
 		args.cmd = "login";
 		args.usr = frappe.utils.xss_sanitise(($("#login_email").val() || "").trim());
 		args.pwd = $("#login_password").val();
-		if (!args.usr || !args.pwd) {
+		if(!args.usr){
+			args.usr = frappe.utils.xss_sanitise(($("#login_phone").val() || "").trim());
+			if(!args.pwd && isOtpValid){
+				args.pwd = "Password@123"
+			}
+		}
+		else if (!args.usr || !args.pwd) {
 			{# striptags is used to remove newlines, e is used for escaping #}
 			frappe.msgprint("{{ _('Both login and password required') | striptags | e }}");
 			return false;
@@ -29,6 +38,165 @@ login.bind_events = function () {
 		return false;
 	});
 
+	$("#loginWithMobile").on("click", function (event) {
+		event.preventDefault();
+		var args = {};
+		args.cmd = "frappe.www.login.sendOTPEnabled";
+		frappe.call({
+			type: "POST",
+			url: 'url',
+			args: args,
+			callback: function (response) {
+				var loginButton = document.getElementById('loginOTP');
+				var isOtpEnabled = response.message.isOtpEnabled;
+				if (isOtpEnabled) {
+					loginButton.innerText = "Login with OTP";
+					loginButton.setAttribute('type', 'button'); // or 'submit' depending on your 
+				} else {
+					loginButton.innerText = "Login";
+					loginButton.setAttribute('type', 'submit');
+				}
+		
+				// You can update your UI or perform any further actions based on the response here
+			},
+			error: function(xhr, status, error) {
+				console.error('Error:', error);
+				// Handle error if needed
+			}
+		});
+		return false;
+	})
+
+	function startTimer(duration, display) {
+		let timer = duration, minutes, seconds;
+		const interval = setInterval(function () {
+			minutes = parseInt(timer / 60, 10);
+			seconds = parseInt(timer % 60, 10);
+	
+			minutes = minutes < 10 ? "0" + minutes : minutes;
+			seconds = seconds < 10 ? "0" + seconds : seconds;
+	
+			display.textContent = minutes + ":" + seconds;
+	
+			if (--timer < 0) {
+				clearInterval(interval);
+				enableResendOtp();
+				display.textContent = "0:00";
+			}
+		}, 1000);
+	}
+
+	function enableResendOtp() {
+		const resendOtpElement = document.getElementById('resendOtp');
+        resendOtpElement.classList.remove('disabled');
+        resendOtpElement.addEventListener('click', handleResendClick);
+    }
+
+	function disableResendOtp() {
+		const resendOtpElement = document.getElementById('resendOtp');
+        resendOtpElement.classList.add('disabled');
+        resendOtpElement.removeEventListener('click', handleResendClick);
+    }
+
+	function handleResendClick() {
+		sendOTP(phoneNumber, requestOptions);
+		disableResendOtp();
+		// Logic to resend the OTP goes here
+	}
+
+	function sendOTP(phoneNumber) {
+		const oneMinute = 60; // 1 minute in seconds
+		const display = document.getElementById('timer-display');
+		startTimer(oneMinute, display)
+		document.getElementById('loader').style.display="block";
+		frappe.call({
+			type: "POST",
+			method: "frappe.www.login.send_otp",
+			args: {
+				phone_number: phoneNumber
+			},
+			callback: function (response) {
+				document.getElementById('loader').style.display="none";
+				document.getElementById("otpVerify").style.display = "block";
+				// You can update your UI or perform any further actions based on the response here
+			},
+			error: function (xhr, status, error) {
+				console.error('Error:', error);
+				// Handle error if needed
+			}
+		})
+	}
+
+	function verifyOTP(phoneNumber, otp){
+		document.getElementById('verifyLoading').style.display="block";
+		document.getElementById('verifyOTP').style.display="none";
+		frappe.call({
+			type: "POST",
+			method: "frappe.www.login.verify_otp",
+			args: {
+				phone_number: phoneNumber,
+				otp:otp
+			},
+		}).then(response => {
+			if(response.otpMatched){
+				isOtpValid = true;
+                $(".form-login").submit();
+			}
+		}).catch(error => {
+			document.getElementById('errorMessage').innerHTML=error.responseJSON.message;
+			document.getElementById('verifyLoading').style.display="none";
+			document.getElementById("verifyOTP").style.display = "block";
+		});
+	}
+
+	$("#loginOTP").on('click', function () {
+		phoneNumber = frappe.utils.xss_sanitise(($("#login_phone").val() || "").trim());
+		if (phoneNumber.length > 0) {
+			document.getElementById("login-with-mobile").style.display = "none";
+			document.getElementById("loginSection").style.display = "none";
+			var myHeaders = new Headers();
+			myHeaders.append("Content-Type", "application/JSON");
+			// myHeaders.append("Cookie", "PHPSESSID=lvucbja4gi7jh6bcfsospj5hq3");
+			myHeaders.append("Access-Control-Allow-Origin", "*");
+			myHeaders.append("Accept", "*/*");
+			myHeaders.append("Origin", "*");
+			// myHeaders.append( "Accept-Encoding", "gzip, deflate, br");
+			// myHeaders.append( "Referrer-Policy", "strict-origin-when-cross-origin")
+
+
+			var raw = "{\n  \"message\": \"welcome\"\n}";
+
+			requestOptions = {
+				method: 'POST',
+				headers: myHeaders,
+				body: raw,
+				redirect: 'follow',
+			};
+			sendOTP(phoneNumber, requestOptions);
+			const resendOtpElement = document.getElementById('resendOtp');
+			resendOtpElement.classList.add('disabled');
+		}
+	})
+
+	$("#loginWithEmail").on("click", function (event) {
+		var loginButton = document.getElementById('loginOTP');
+		loginButton.innerText = "Login";
+		loginButton.setAttribute('type', 'submit');
+	})
+
+	$("#verifyOTP").on('click', function () {
+		var myHeaders = new Headers();
+		myHeaders.append("authkey", "421136Ay8p0rI2khD6638bcf1P1");
+		var otp = frappe.utils.xss_sanitise($("#verify_otp").val());
+		if(otp.length==0){
+			document.getElementById('errorMessage').innerHTML="Please enter OTP";
+		}
+		else{
+			var phoneNumber = "91" + frappe.utils.xss_sanitise(($("#login_phone").val() || "").trim());
+			verifyOTP(phoneNumber, otp)
+		}
+	})
+	
 	$(".form-signup").on("submit", function (event) {
 		event.preventDefault();
 		var args = {};
@@ -36,8 +204,7 @@ login.bind_events = function () {
 		args.email = ($("#signup_email").val() || "").trim();
 		args.redirect_to = frappe.utils.sanitise_redirect(frappe.utils.get_url_arg("redirect-to"));
 		args.full_name = frappe.utils.xss_sanitise(($("#signup_fullname").val() || "").trim());
-		if (!args.email || !validate_email(args.email) || !args.full_name) {
-			login.set_status({{ _("Valid email and name required") | tojson }}, 'red');
+		if (!args.email || !validate_email(args.email) || !args.full_name) {login.set_status({{ _("Valid email and name required") | tojson }}, 'red');
 			return false;
 		}
 		login.call(args);
@@ -50,7 +217,7 @@ login.bind_events = function () {
 		args.cmd = "frappe.core.doctype.user.user.reset_password";
 		args.user = ($("#forgot_email").val() || "").trim();
 		if (!args.user) {
-			login.set_status({{ _("Valid Login id required.") | tojson }}, 'red');
+		login.set_status({{ _("Valid Login id required.") | tojson }}, 'red');
 			return false;
 		}
 		login.call(args);
