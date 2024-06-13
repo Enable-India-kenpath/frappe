@@ -15,6 +15,7 @@ from frappe.utils.password import get_decrypted_password
 from frappe.website.utils import get_home_page
 import requests
 import json
+from frappe.custom_api import msg_send_otp, msg_verify_otp
 
 no_cache = True
 
@@ -25,7 +26,7 @@ def get_context(context):
 	if frappe.session.user != "Guest":
 		if not redirect_to:
 			if frappe.session.data.user_type == "Website User":
-				redirect_to = get_home_page()
+				redirect_to = "/dashboard"
 			else:
 				redirect_to = "/app"
 
@@ -190,18 +191,7 @@ def sendOTPEnabled():
 def send_otp():
 	phone_number = frappe.request.form['phone_number']
 	# Call the sendOTP API with the phone number
-	api_url = frappe.conf.msg_api_url_send_otp
-	auth_key = frappe.conf.msg_auth_key
-	template_id = frappe.conf.msg_template_id
-
-	payload = {
-		"template_id": template_id,
-	    "mobile": f"91{phone_number}",
-	    "authkey": auth_key
-	}
-
-	response = requests.post(api_url, json=payload)
-	print('response', response)
+	response = msg_send_otp(phone_number)
 	if response.status_code == 200:
 		frappe.response['http_status_code'] = 200
 		frappe.response['content_type'] = 'application/json'
@@ -215,23 +205,10 @@ def send_otp():
 def verify_otp():
 	phone_number = frappe.request.form['phone_number']
 	otp = frappe.request.form['otp']
-    # Call the sendOTP API with the phone number
-	api_url = frappe.conf.msg_api_url_verify_otp
-	auth_key = frappe.conf.msg_auth_key
-
-	headers = {
-        "authkey": auth_key
-    }
-
-	params = {
-        "mobile": phone_number,
-        "otp": otp
-    }
-
-	response = requests.get(api_url,headers=headers, params=params)
+	response =  msg_verify_otp(otp, phone_number)
 	response_data = response.json()
 	response_type = response_data.get('type')
-	print(response_data)
+	print(response)
 	if response_type == "success":
 		frappe.response['http_status_code'] = 200
 		frappe.response['content_type'] = 'application/json'
