@@ -1,0 +1,519 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+        .nav {
+            display: flex;
+            flex-wrap: wrap;
+            padding-left: 0;
+            margin-bottom: 0;
+            list-style: none;
+        }
+
+        .user-details {
+            margin-top: 10px;
+        }
+
+        .dashboard-section {
+            display: flex;
+        }
+
+        .profile-username {
+            text-align: center;
+        }
+
+        .profile-username img {
+            border-radius: 50%;
+            height: 100px;
+            width: 100px;
+        }
+
+        .left-container {
+            width: 25%;
+            border: 2px solid #efefef;
+        }
+
+        .left-container ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .user-details div {
+            margin-bottom: 10px;
+        }
+
+        .user-details div label {
+            margin-bottom: 0;
+        }
+
+        .right-container {
+            width: 80%;
+            border: 2px solid #efefef;
+            padding: 10px;
+        }
+
+        .nav-pills .nav-link.available{
+            color: #72C02C !important;
+        }
+
+        .nav-pills .nav-link.active {
+            color: #72C02C !important;
+            margin-bottom: 10px;
+            background-color: transparent !important;
+            border: none;
+            border-bottom: 1px solid #72C02C;
+            font-weight: 700;
+        }
+
+        .right-container .nav-link {
+            color: #b7b7b7 !important;
+            background-color: #fff;
+            border: none;
+        }
+
+        .user-section li {
+            cursor: pointer;
+        }
+
+        .user-section li:not(.active):hover {
+            background-color: #b7b7b7;
+        }
+
+        .right-container .nav li {
+            padding-left: 10px;
+        }
+
+        @property --p {
+            syntax: '<number>';
+            inherits: true;
+            initial-value: 0;
+        }
+
+        .pie {
+            --p: 20;
+            --b: 10px;
+            --c: darkred;
+            --w: 150px;
+
+            width: var(--w);
+            aspect-ratio: 1;
+            position: relative;
+            display: inline-grid;
+            margin: 5px;
+            place-content: center;
+            font-size: 25px;
+            font-weight: bold;
+            font-family: sans-serif;
+        }
+
+        .pie:before,
+        .pie:after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+        }
+
+        .pie:before {
+            inset: 0;
+            background: radial-gradient(farthest-side, #72C02C 98%, #0000) top/var(--b) var(--b) no-repeat,
+                conic-gradient(#72C02C calc(var(--p)*1%), #0000 0);
+            -webkit-mask: radial-gradient(farthest-side, #0000 calc(99% - var(--b)), #000 calc(100% - var(--b)));
+            mask: radial-gradient(farthest-side, #0000 calc(99% - var(--b)), #000 calc(100% - var(--b)));
+        }
+
+        .pie:after {
+            inset: calc(50% - var(--b)/2);
+            background: var(--c);
+            transform: rotate(calc(var(--p)*3.6deg)) translateY(calc(50% - var(--w)/2));
+        }
+
+        .animate {
+            animation: p 1s .5s both;
+        }
+
+        .no-round:before {
+            background-size: 0 0, auto;
+        }
+
+        .no-round:after {
+            content: none;
+        }
+
+        @keyframes p {
+            from {
+                --p: 0
+            }
+        }
+
+        .accessibility-solution {
+            display: flex;
+            align-items: center;
+        }
+
+        .accessible {
+            width: 80%;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .user-section-item.active {
+            font-weight: 700;
+            border-radius: 25px;
+            background-color: #c8d7cb;
+            color: #fff;
+            transition-duration: 0.2s;
+        }
+
+
+        .user-section-item {
+            cursor: pointer;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin:20px
+        }
+
+        .user-section-item:hover {
+            border-radius: 25px;
+            background-color: #c8d7cb;
+            color: #fff;
+            transition-duration: 0.2s;
+        }
+        .user-section-item a{
+            text-decoration: none !important;
+            color: #000;
+        }
+
+        .user-section-item span{
+            color: #000;
+        }
+
+        .user-section-item a:hover {
+            text-decoration: none;
+            text-decoration-line: none;
+        }
+
+        .user-section-item .icons {
+            height: 25px;
+            width: 25px;
+        }
+
+        .user-section-item span {
+            width: 100%;
+            margin-left: 10px;
+        }
+
+        .training-opportunities {
+            width: 80%;
+        }
+
+        .accessible div,
+        .training-opportunities div, .skill-based-opportunities {
+            width: 50%;
+            justify-content: center;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            transform: scale(1);
+            transition: 0.2s;
+            flex-direction: column;
+            margin: 20px;
+        }
+
+        .accessible div h1 {
+            margin-top: 0;
+        }
+
+        .enter-opportunities {
+            text-align: center;
+        }
+
+        .enter-opportunities span {
+            justify-content: center;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            transform: scale(1);
+            transition: 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .accessible div:hover,
+        .training-opportunities div:hover,
+        .enter-opportunities div:hover, .skill-based-opportunities:hover {
+            box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;            /* animation: bouncing 0.5s .3s; */
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .session-count {
+            font-size: 3.5rem;
+            font-weight: 700;
+        }
+
+        .Click-buttons{
+            text-align: end;
+        }
+        .profile-status{
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+        }
+        /* ::-webkit-scrollbar {
+            display: none;
+        } */
+        .form-value {
+            max-height: 600px;
+            overflow: scroll;
+            overflow-y: hidden;
+            overflow-x: hidden;
+            display: none;
+        }
+        /* Show the active tab */
+        .form-value.active {
+            display: block;
+        }
+        .submit-btn{
+            display: flex;
+            justify-content: space-between;
+            margin: 10px;
+        }
+        .submit-btn .btn {
+            background-color: #72C02C;
+            color: #fff;
+            padding: 10px 20px !important;
+            font-weight: 500;
+        }
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        /* Track */
+        .form-value::-webkit-scrollbar-track {
+            box-shadow: inset 0 0 5px grey; 
+            border-radius: 10px;
+        }
+        
+        /* Handle */
+        .form-value::-webkit-scrollbar-thumb {
+            background: #72C02C; 
+            border-radius: 10px;
+        }
+
+        /* Handle on hover */
+        .form-value::-webkit-scrollbar-thumb:hover {
+            background: #72C02C; 
+        }
+
+        span:focus{
+            background-color: green;
+            color: white;
+        }
+
+    </style>
+    <script>
+        function tabSwitch(id, parentId){
+            document.querySelectorAll('.user-section-item').forEach(function(item) {
+                item.classList.remove('active');
+            });
+            document.querySelectorAll('.side-content').forEach(function(element) {
+                element.style.transition = 'display 0.5s ease';
+                element.style.display = 'none';
+            });
+            document.getElementById(parentId).classList.add('active')
+            document.getElementById(id).style.transition = 'display 0.5s ease';
+            document.getElementById(id).style.display = 'block'
+        }
+    </script>
+</head>
+
+<body>
+    <div class="dashboard-section">
+        <div class="left-container">
+            <div class=user-details>
+                <div class="profile-username">
+                    <div class="profile-picture">
+                        {%  if userDetails.photo %}
+                            <img src={{userDetails.photo}} alt="profile photo" />
+                        {% else %}
+                            <img src="/files/user-placeholder.png" />
+                        {% endif %}
+                    </div>
+                    <div class="username">
+                        {{userDetails.full_name}}
+                    </div>
+                </div>
+                <div class="user-section-item active" id="myDashboard" aria-current="true" onclick="tabSwitch('dashboard', 'myDashboard')">
+                    <img src="/assets/frappe/images/home-icon-silhouette.png" style="height: 25px; width: 25px;" />
+                    <span>My Dashboard</span>
+                </div>
+                <div class="user-section-item" id="profileUpdate" onclick="tabSwitch('updateProfile', 'profileUpdate')"">
+                    <a href="https://purple-registry.enableindia.org/update-form/new"><img src="/assets/frappe/images/user.png" style="height: 25px; width: 25px;" />
+                    <span>Profile Update</span> </a>
+                </div>
+                <div class="user-section-item">
+                    <img src="/assets/frappe/images/contact.png" style="height: 25px; width: 25px;" />
+                    <span>Profile Share</span>
+                </div>
+                <div class="user-section-item">
+                    <img src="/assets/frappe/images/help-web-button.png" style="height: 25px; width: 25px;" />
+                    <span>Need Help</span>
+                </div>
+                <div class="user-section-item">
+                    <img src="/assets/frappe/images/digital.png" style="height: 25px; width: 25px;" />
+                    <a href="https://myaadhaar.uidai.gov.in/verifyAadhaar">
+                        <span>Validate Aadhar Number</span>
+                    </a>
+                </div>
+                <div class="user-section-item">
+                    <img src="/assets/frappe/images/udid.png" style="height: 25px; width: 25px;" />
+                    <a href="https://www.swavlambancard.gov.in/pwd/pwdtrack">
+                        <span>Validate UDID Number</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="right-container">
+            <div class="side-content" id="dashboard">
+                <ul class="nav nav-pills" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation" onclick="showTabData('pills-oppor')">
+                        <button class="dashboard nav-link active"  data-bs-toggle="pill"
+                            data-bs-target="#pills-oppor" type="button" role="tab" aria-controls="pills-oppor"
+                            aria-selected="true">Opportunities</button>
+                    </li>
+                    <li class="nav-item" role="presentation" onclick="showTabData('pills-home')">
+                        <button class="dashboard nav-link" id="isBlimeyEnabled" data-bs-toggle="pill"
+                            data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home"
+                            aria-selected="true">Blimey</button>
+                    </li>
+                    <li class="nav-item" role="presentation" onclick="showTabData('pills-profile')">
+                        <button class="dashboard nav-link" id="isVaaniEnabled" data-bs-toggle="pill"
+                            data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile"
+                            aria-selected="false">Vaani</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="dashboard nav-link" id="pills-contact-tab" data-bs-toggle="pill"
+                            data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact"
+                            aria-selected="false" disabled>Dish</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="pills-tabContent">
+                    <div class="tab-pane fade show active" id="pills-oppor" role="tabpanel">
+                        <div class="d-flex training-opportunities">
+                            <div>
+                                <span tabindex="0">No of Livelihood Oppotrunities</span>
+                                <span tabindex="0" class="session-count">{{sessionDetails.noOfLivelihoodOpprtunities}}</span>
+                                <span tabindex="0">Available</span>
+                            </div>
+                            <div>
+                                <span tabindex="0">No of Entrepreneurship Opportunities</span>
+                                <span tabindex="0" class="session-count">{{sessionDetails.noOfEnterpreneur}}</span>
+                                <span tabindex="0">Available</span>
+                            </div>
+                            </div>
+                        <div class="d-flex training-opportunities" style="margin: 0; justify-content: center;">
+                            <div>
+                                <span tabindex="0">Skill Based Opportunities</span>
+                                <span tabindex="0" class="session-count">{{sessionDetails.skillBasedOpportunities}}</span>
+                                <span tabindex="0">Available</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="pills-home" role="tabpanel" aria-labelledby="isBlimeyEnabled">
+                        <div class="accessibility-solution">
+                            <div class="accessible">
+                                <div>
+                                    <span tabindex="0">No of Sessions</span>
+                                    <span tabindex="0" class="session-count">{{sessionDetails.noOfSessionsAttempted}}</span>
+                                    <span tabindex="0">Sessions</span>
+                                </div>
+                                <div>
+                                    <span tabindex="0">Blimey Exercises Attempted</span>
+                                    <span tabindex="0" class="session-count">{{sessionDetails.noOfBlimeyExercisesAttempted}}</span>
+                                    <span tabindex="0">Exercise</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="isVaaniEnabled">
+                        {% if vaaniDetails %}
+                        <div class="d-flex training-opportunities">
+                            <div>
+                                <span tabindex="0">Number of Calls</span>
+                                <span tabindex="0" class="session-count">{{vaaniDetails.noOfCalls}}</span>
+                                <span tabindex="0">Calls</span>
+                            </div>
+                            <div>
+                                <span tabindex="0">Average Duration</span>
+                                <span tabindex="0" class="session-count">{{vaaniDetails.average}}</span>
+                                <span tabindex="0">Average</span>
+                            </div>
+                        </div>
+                        {% else %}
+                            <span tabindex="0">No Record Found</span>
+                        {% endif %}
+                    </div>
+                    <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+                        ...</div>
+                </div>
+                <div class="Click-buttons">
+                    <span>Last updated on: {{sessionDetails.lastUpdatedOn}}</span>
+                </div>
+            </div>
+    </div>
+    <script>
+        const isBlimey = '{{isBlimeyEnabled}}'
+        const isVaani = '{{isVaaniEnabled}}'
+        console.log(isBlimey)
+        function showTabData(tabId){
+            console.log(tabId)
+            document.getElementById(tabId).classList.add("show", "active")
+        }
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+        if(id){
+            document.getElementById('profileUpdate').style.display='none';
+        }
+        // Get all tabs
+        var tabs = document.querySelectorAll('.dashboard');
+        // Add click event listener to each tab
+        tabs.forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                console.log('clecked')
+                tabs.forEach(function (t) {
+                    t.classList.remove('active');
+                });
+                
+                this.classList.add('active');
+                
+                var tabPanes = document.querySelectorAll('.tab-pane');
+                tabPanes.forEach(function (pane) {
+                    pane.classList.remove('show', 'active');
+                });
+
+                var targetPaneId = this.getAttribute('data-bs-target'); // remove #
+                var targetPane = document.getElementById(targetPaneId);
+                targetPane.classList.add('show', 'active');
+            });
+        });
+        if(isVaani == "True"){
+            document.getElementById('isVaaniEnabled').classList.add('available')
+        }
+        if (isBlimey == "True"){
+            console.log(document.getElementById('isBlimeyEnabled'))
+            document.getElementById('isBlimeyEnabled').classList.add('available')
+        }
+    </script>
+</body>
+
+</html>
+
+{% endblock %}

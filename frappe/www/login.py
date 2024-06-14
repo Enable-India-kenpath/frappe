@@ -191,7 +191,7 @@ def sendOTPEnabled():
 def send_otp():
 	phone_number = frappe.request.form['phone_number']
 	# Call the sendOTP API with the phone number
-	response = msg_send_otp(phone_number)
+	response = msg_send_otp("91"+phone_number)
 	if response.status_code == 200:
 		frappe.response['http_status_code'] = 200
 		frappe.response['content_type'] = 'application/json'

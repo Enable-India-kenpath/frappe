@@ -5,7 +5,7 @@ import requests
 def msg_send_otp(mobileNumber):
     api_url = frappe.conf.msg_api_url_send_otp
     auth_key = frappe.conf.msg_auth_key
-    template_id = frappe.conf.msg_template_i
+    template_id = frappe.conf.msg_template_id
     payload = {
         "template_id": template_id,
         "mobile": f"91{mobileNumber}",
