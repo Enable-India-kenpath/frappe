@@ -13,17 +13,20 @@ from frappe.utils.jinja import guess_is_path
 from frappe.utils.oauth import get_oauth2_authorize_url, get_oauth_keys, redirect_post_login
 from frappe.utils.password import get_decrypted_password
 from frappe.website.utils import get_home_page
+import requests
+import json
+from frappe.custom_api import msg_send_otp, msg_verify_otp
 
 no_cache = True
 
+context = {}
 
 def get_context(context):
 	redirect_to = frappe.local.request.args.get("redirect-to")
-
 	if frappe.session.user != "Guest":
 		if not redirect_to:
 			if frappe.session.data.user_type == "Website User":
-				redirect_to = get_home_page()
+				redirect_to = "/dashboard"
 			else:
 				redirect_to = "/app"
 
@@ -39,6 +42,7 @@ def get_context(context):
 	context["disable_signup"] = cint(frappe.get_website_settings("disable_signup"))
 	context["show_footer_on_login"] = cint(frappe.get_website_settings("show_footer_on_login"))
 	context["disable_user_pass_login"] = cint(frappe.get_system_settings("disable_user_pass_login"))
+	context["isOtpEnabled"] = False
 	context["logo"] = frappe.get_website_settings("app_logo") or frappe.get_hooks("app_logo_url")[-1]
 	context["app_name"] = (
 		frappe.get_website_settings("app_name") or frappe.get_system_settings("app_name") or _("Frappe")
@@ -155,12 +159,8 @@ def _generate_temporary_login_link(email: str, expiry: int):
 	return get_url(f"/api/method/frappe.www.login.login_via_key?key={key}")
 
 
-def get_login_with_email_link_ratelimit() -> int:
-	return frappe.get_system_settings("rate_limit_email_link_login") or 5
-
-
 @frappe.whitelist(allow_guest=True, methods=["GET"])
-@rate_limit(limit=get_login_with_email_link_ratelimit, seconds=60 * 60)
+@rate_limit(limit=5, seconds=60 * 60)
 def login_via_key(key: str):
 	cache_key = f"one_time_login_key:{key}"
 	email = frappe.cache.get_value(cache_key)
@@ -180,3 +180,42 @@ def login_via_key(key: str):
 			http_status_code=403,
 			indicator_color="red",
 		)
+
+@frappe.whitelist(allow_guest=True)
+def sendOTPEnabled():
+	global context
+	context["isOtpEnabled"] = True
+	return context
+
+@frappe.whitelist(allow_guest=True, methods=['POST'])
+def send_otp():
+	phone_number = frappe.request.form['phone_number']
+	# Call the sendOTP API with the phone number
+	response = msg_send_otp("91"+phone_number)
+	if response.status_code == 200:
+		frappe.response['http_status_code'] = 200
+		frappe.response['content_type'] = 'application/json'
+		frappe.response['body'] = json.dumps({'message': 'OTP sent successfully!'})
+	else:
+		frappe.response['http_status_code'] = 500
+		frappe.response['content_type'] = 'application/json'
+		frappe.response['body'] = json.dumps({'message': 'OTP not sent!'})
+
+@frappe.whitelist(allow_guest=True, methods=['POST'])
+def verify_otp():
+	phone_number = frappe.request.form['phone_number']
+	otp = frappe.request.form['otp']
+	response =  msg_verify_otp(otp, phone_number)
+	response_data = response.json()
+	response_type = response_data.get('type')
+	print(response)
+	if response_type == "success":
+		frappe.response['http_status_code'] = 200
+		frappe.response['content_type'] = 'application/json'
+		frappe.response['message'] =  'OTP verified successfully!'
+		frappe.response['otpMatched'] = True
+	else:
+		frappe.response['http_status_code'] = 500
+		frappe.response['content_type'] = 'application/json'
+		frappe.response['message'] = response_data.get('message')
+		frappe.response['otpMatched'] = False
